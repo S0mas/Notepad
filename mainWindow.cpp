@@ -1,13 +1,11 @@
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
-#include "fileWindow.h"
-using namespace std;
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-   // connect()
 }
 
 MainWindow::~MainWindow()
@@ -15,17 +13,9 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_actionNew_FIle_triggered()
-{
-            fileWindow.setModal(true);
-            fileWindow.exec();
-}
-
-
-
 void MainWindow::on_actionQuit_triggered()
 {
-    close();
+qApp->quit();
 }
 
 void MainWindow::on_actionSave_triggered()
@@ -35,23 +25,47 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionSave_as_triggered()
 {
-
-}
-
-void MainWindow::on_actionRedo_triggered()
-{
-
-}
-
-void MainWindow::on_actionUndo_triggered()
-{
-
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), QString(),
+            tr("Text Files (*.txt);;C++ Files (*.cpp *.h)"));
+    fileName+=".txt";
+    if (!fileName.isEmpty()) {
+        QFile file(fileName);
+        if (!file.open(QIODevice::WriteOnly)) {
+            QMessageBox::critical(this, tr("Error"), tr("Could not open file"));
+            return;
+        } else {
+            QTextStream stream(&file);
+            stream << ui->plainTextEdit->toPlainText();
+            stream.flush();
+            file.close();
+        }
+    }
 }
 
 void MainWindow::on_actionOpen_File_triggered()
 {
-    fstream file;
-    file.open("Cep.txt", ios::in);
-    if(file.good()==true) ui->actionSave->setText("OK");
-    else ui->actionSave->setText("BAD");
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QString(),
+            tr("Text Files (*.txt);;C++ Files (*.cpp *.h)"));
+
+    if (!fileName.isEmpty()) {
+        QFile file(fileName);
+        if (!file.open(QIODevice::ReadOnly)) {
+            QMessageBox::critical(this, tr("Error"), tr("Could not open file"));
+            return;
+        }
+        QTextStream in(&file);
+        ui->plainTextEdit->setPlainText(in.readAll());
+        file.close();
+    }
+}
+
+
+void MainWindow::on_actionChange_font_triggered()
+{
+
+}
+
+void MainWindow::on_actionChange_text_size_triggered()
+{
+
 }
